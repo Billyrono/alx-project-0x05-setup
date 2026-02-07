@@ -1,52 +1,30 @@
 import ImageCard from "@/components/common/ImageCard";
-import { ImageProps } from "@/interfaces";
-import { useState } from "react";
+import React, { useState } from "react";
 
 const Home: React.FC = () => {
   const [prompt, setPrompt] = useState<string>("");
   const [imageUrl, setImageUrl] = useState<string>("");
-  const [generatedImages, setGeneratedImages] = useState<ImageProps[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const handleGenerateImage = async () => {
-    if (!prompt.trim()) return;
-
     setIsLoading(true);
-    console.log("Generating Image");
+    const resp = await fetch("/api/generate-image", {
+      method: "POST",
+      body: JSON.stringify({
+        prompt,
+      }),
+      headers: {
+        "Content-type": "application/json",
+      },
+    });
 
-    try {
-      const response = await fetch(
-        "https://chatgpt-42.p.rapidapi.com/texttoimage",
-        {
-          method: "POST",
-          headers: {
-            "x-rapidapi-key": process.env.NEXT_PUBLIC_GPT_API_KEY || "",
-            "x-rapidapi-host": "chatgpt-42.p.rapidapi.com",
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            text: prompt,
-            width: 512,
-            height: 512,
-          }),
-        },
-      );
-
-      const data = await response.json();
-
-      if (data.generated_image) {
-        const newImage: ImageProps = {
-          imageUrl: data.generated_image,
-          prompt,
-        };
-        setImageUrl(newImage.imageUrl);
-        setGeneratedImages((prev) => [newImage, ...prev]);
-      }
-    } catch (error) {
-      console.error("Error generating image:", error);
-    } finally {
+    if (!resp.ok) {
       setIsLoading(false);
+      return;
     }
+
+    const data = await resp.json();
+    setIsLoading(false);
   };
 
   return (
@@ -69,7 +47,7 @@ const Home: React.FC = () => {
             onClick={handleGenerateImage}
             className="w-full p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200"
           >
-            {isLoading ? "Generating..." : "Generate Image"}
+            {isLoading ? "Loading..." : "Generate Image"}
           </button>
         </div>
 
