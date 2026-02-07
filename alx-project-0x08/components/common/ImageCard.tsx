@@ -9,21 +9,19 @@ const ImageCard: React.FC<GeneratedImageProps> = ({
   return (
     <div
       onClick={() => action(imageUrl)}
-      className="mt-6 border hover:cursor-pointer rounded-lg overflow-hidden shadow-lg"
+      className="mt-6 border hover:cursor-pointer"
     >
       <img
         src={imageUrl}
         alt={prompt}
-        className={`w-full max-w-md rounded-t-lg`}
+        className={`w-full max-w-md rounded-lg shadow-lg`}
       />
-      <div className="p-4">
-        <h2 className={`${width ? "text-sm" : "text-xl"} font-semibold`}>
-          Your Prompt:
-        </h2>
-        <p className={`${width ? "text-xs" : "text-lg"} text-gray-700`}>
-          {prompt}
-        </p>
-      </div>
+      <h2 className={`${width ? "text-sm" : "text-xl"} font-semibold mt-2`}>
+        Your Prompt:
+      </h2>
+      <p className={`${width ? "text-xs" : "text-lg"} text-gray-700 mb-4`}>
+        {prompt}
+      </p>
     </div>
   );
 };
