@@ -9,8 +9,44 @@ const Home: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const handleGenerateImage = async () => {
-    console.log("Generating Image")
-    console.log(process.env.NEXT_PUBLIC_GPT_API_KEY)
+    if (!prompt.trim()) return;
+
+    setIsLoading(true);
+    console.log("Generating Image");
+
+    try {
+      const response = await fetch(
+        "https://chatgpt-42.p.rapidapi.com/texttoimage",
+        {
+          method: "POST",
+          headers: {
+            "x-rapidapi-key": process.env.NEXT_PUBLIC_GPT_API_KEY || "",
+            "x-rapidapi-host": "chatgpt-42.p.rapidapi.com",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            text: prompt,
+            width: 512,
+            height: 512,
+          }),
+        },
+      );
+
+      const data = await response.json();
+
+      if (data.generated_image) {
+        const newImage: ImageProps = {
+          imageUrl: data.generated_image,
+          prompt,
+        };
+        setImageUrl(newImage.imageUrl);
+        setGeneratedImages((prev) => [newImage, ...prev]);
+      }
+    } catch (error) {
+      console.error("Error generating image:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -33,10 +69,7 @@ const Home: React.FC = () => {
             onClick={handleGenerateImage}
             className="w-full p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200"
           >
-            {/* {
-              isLoading ? "Loading..." : "Generate Image"
-            } */}
-            Generate Image
+            {isLoading ? "Generating..." : "Generate Image"}
           </button>
         </div>
 
